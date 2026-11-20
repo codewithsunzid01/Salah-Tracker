@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salah Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f7a5a">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#f5f3ea;--card:#fff;--ink:#16322a;--mute:#6b7f77;--line:#e3e0d2;--acc:#0f7a5a;--acc2:#d9efe6;--gold:#b8892b;--bad:#c0463a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1814;--card:#13251f;--ink:#e8f1ed;--mute:#8aa399;--line:#23382f;--acc:#3fc79a;--acc2:#173a2f;--gold:#e0b04e;--bad:#e8786b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1814;--card:#13251f;--ink:#e8f1ed;--mute:#8aa399;--line:#23382f;--acc:#3fc79a;--acc2:#173a2f;--gold:#e0b04e;--bad:#e8786b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.sub{color:var(--mute);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.hero{display:flex;gap:16px;align-items:center;background:linear-gradient(135deg,var(--acc2),var(--card))}
+.hero .big{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+.ring{flex:none;position:relative;width:96px;height:96px}
+.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+button,select{font:inherit;color:var(--ink)}
+.ib{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 12px;cursor:pointer}
+.ib:disabled{opacity:.4;cursor:default}
+.row{display:flex;align-items:center;gap:12px;padding:12px 6px;border-top:1px solid var(--line);cursor:pointer}
+.row:first-of-type{border-top:0}
+.chk{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px}
+.row.done .chk{background:var(--acc);border-color:var(--acc)}
+.row.due .chk{border-color:var(--gold)}
+.nm{flex:1}.nm b{display:block;font-size:16px}
+.ar{font-family:"Amiri","Noto Naskh Arabic",serif;color:var(--mute);font-size:15px}
+.tm{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin-top:2px;background:var(--acc2);color:var(--acc)}
+.tag.due{background:var(--gold);color:#fff}.tag.miss{background:transparent;color:var(--bad);border:1px solid var(--bad)}.tag.up{background:transparent;color:var(--mute);border:1px solid var(--line)}
+.stats{display:flex;gap:10px;margin-bottom:14px}
+.stat{flex:1;text-align:center}.stat b{display:block;font-size:24px}
+.scroll{overflow-x:auto}
+.heat{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.heat i{aspect-ratio:1;border-radius:6px;background:var(--acc);display:block}
+.set{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.set label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
+.set select{padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+#alert{display:none;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--gold);color:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;font-weight:600;cursor:pointer}
+.note{font-size:12px;color:var(--mute);margin:8px 0 0}
+@media(max-width:420px){.hero{flex-direction:column;align-items:flex-start}.set{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>🕌 Salah Tracker</h1><div class="sub" id="hijri"></div></div>
+    <button class="ib" id="bell">🔔 Enable alerts</button>
+  </div>
+  <div id="alert"></div>
+
+  <div class="card hero">
+    <div class="ring"><svg viewBox="0 0 100 100" width="96" height="96"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" stroke-width="9"/><circle id="arc" cx="50" cy="50" r="42" fill="none" stroke="var(--acc)" stroke-width="9" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" transform="rotate(-90 50 50)"/></svg><b id="cnt">0/5</b></div>
+    <div><div class="lbl" id="nlbl">Next prayer</div><div class="big" id="ncd">--:--:--</div><div class="sub" id="nname"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="nav"><button class="ib" id="prev">‹</button><div style="text-align:center"><b id="dlab"></b><div class="sub" id="dsub"></div></div><button class="ib" id="next">›</button></div>
+    <div id="list"></div>
+    <p class="note" id="note"></p>
+  </div>
+
+  <div class="stats">
+    <div class="card stat" style="margin:0"><b id="streak">0</b><span class="sub">day streak</span></div>
+    <div class="card stat" style="margin:0"><b id="wk">0%</b><span class="sub">last 7 days</span></div>
+    <div class="card stat" style="margin:0"><b id="tot">0</b><span class="sub">prayers logged</span></div>
+  </div>
+
+  <div class="card"><div class="lbl">Last 7 days</div><div class="scroll"><svg id="bars" viewBox="0 0 320 150" width="100%" style="min-width:280px"></svg></div></div>
+  <div class="card"><div class="lbl" style="margin-bottom:8px">Last 30 days (darker = more prayers)</div><div class="heat" id="heat"></div></div>
+
+  <div class="card">
+    <div class="lbl" style="margin-bottom:8px">Settings</div>
+    <div class="set">
+      <label>Prayer times calculated for<select id="loc"><option value="makkah">Makkah (Umm al-Qura)</option><option value="dhaka">Dhaka</option><option value="khulna">Khulna</option></select></label>
+      <label>Show times in (Asia time zone)<select id="tz"></select></label>
+      <label>Asr method<select id="asr"><option value="1">Standard (Makkah)</option><option value="2">Hanafi</option></select></label>
+      <label>Theme<select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="ib" id="exp">⬇ Export backup</button><button class="ib" id="imp">⬆ Import backup</button><button class="ib" id="ics">📅 Add next 30 days to calendar</button><input type="file" id="impf" accept="application/json" hidden></div>
+    <p class="note">Makkah mode uses the Umm al-Qura method (Fajr 18.5°, Isha 90 min after Maghrib, 120 in Ramadan), then converts those moments to your chosen Asian time zone. Choose Dhaka or Khulna to see times for your own sky. Reminders fire only while this page is open. Times are calculated estimates; follow your local mosque if they differ.</p>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s),r=Math.PI/180;
+const P=[["fajr","Fajr","الفجر"],["dhuhr","Dhuhr","الظهر"],["asr","Asr","العصر"],["maghrib","Maghrib","المغرب"],["isha","Isha","العشاء"]];
+const LOCS={makkah:{lat:21.4225,lng:39.8262},dhaka:{lat:23.8103,lng:90.4125},khulna:{lat:22.8456,lng:89.5403}};
+const TZS=["Asia/Dhaka","Asia/Riyadh","Asia/Kolkata","Asia/Karachi","Asia/Dubai","Asia/Kuala_Lumpur","Asia/Jakarta","Asia/Tokyo"];
+let S={loc:"makkah",tz:"Asia/Dhaka",asr:"1",theme:"auto",alerts:false},LOG={},fired={};
+try{Object.assign(S,JSON.parse(localStorage.getItem("sal_set")||"{}"));LOG=JSON.parse(localStorage.getItem("sal_log")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("sal_set",JSON.stringify(S));localStorage.setItem("sal_log",JSON.stringify(LOG))}catch(e){}};
+const dkey=(d,tz)=>new Intl.DateTimeFormat("en-CA",{timeZone:tz,year:"numeric",month:"2-digit",day:"2-digit"}).format(d);
+const shift=(k,n)=>{const [y,m,d]=k.split("-").map(Number);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10)};
+const fmt=(t,tz)=>new Intl.DateTimeFormat("en-US",{timeZone:tz,hour:"numeric",minute:"2-digit",hour12:true}).format(t);
+
+function calc(key){
+  const loc=LOCS[S.loc],[y,m,d]=key.split("-").map(Number),base=Date.UTC(y,m-1,d);
+  const D=base/864e5+2440587.5+.5-2451545,fa=a=>((a%360)+360)%360;
+  const g=fa(357.529+.98560028*D),q=fa(280.459+.98564736*D),L=fa(q+1.915*Math.sin(g*r)+.02*Math.sin(2*g*r)),e=23.439-3.6e-7*D;
+  let ra=Math.atan2(Math.cos(e*r)*Math.sin(L*r),Math.cos(L*r))/r/15;ra=((ra%24)+24)%24;
+  const dec=Math.asin(Math.sin(e*r)*Math.sin(L*r))/r;let eq=q/15-ra;eq-=Math.round(eq/24)*24;
+  const noon=12-loc.lng/15-eq,sp=Math.sin(loc.lat*r),cp=Math.cos(loc.lat*r),sd=Math.sin(dec*r),cd=Math.cos(dec*r);
+  const T=a=>Math.acos((-Math.sin(a*r)-sd*sp)/(cd*cp))/r/15;
+  const ang=Math.atan(1/(+S.asr+Math.tan(Math.abs(loc.lat-dec)*r)))/r;
+  const Ta=Math.acos((Math.sin(ang*r)-sp*sd)/(cp*cd))/r/15;
+  const mag=noon+T(.833);
+  let ram=false;try{ram=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{month:"numeric"}).format(new Date(base+noon*36e5))==="9"}catch(e){}
+  const H=h=>base+h*36e5;
+  return{fajr:H(noon-T(18.5)),sunrise:H(noon-T(.833)),dhuhr:H(noon),asr:H(noon+Ta),maghrib:H(mag),isha:H(mag+(ram?2:1.5))};
+}
+let view=dkey(new Date(),S.tz);
+const today=()=>dkey(new Date(),S.tz);
+const cnt=k=>P.filter(p=>(LOG[k]||{})[p[0]]).length;
+
+function render(){
+  const td=today(),tm=calc(view),nx=calc(shift(view,1)),now=Date.now(),isT=view===td,fut=view>td;
+  const ends={fajr:tm.sunrise,dhuhr:tm.asr,asr:tm.maghrib,maghrib:tm.isha,isha:nx.fajr};
+  const vd=new Date(view+"T12:00:00Z");
+  $("#dlab").textContent=isT?"Today":new Intl.DateTimeFormat("en-GB",{timeZone:"UTC",weekday:"long",day:"numeric",month:"short"}).format(vd);
+  $("#dsub").textContent=isT?new Intl.DateTimeFormat("en-GB",{timeZone:"UTC",weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(vd):view;
+  $("#next").disabled=view>=td;
+  let h="";
+  P.forEach(([k,n,a])=>{
+    const done=!!(LOG[view]||{})[k],t=tm[k];let st="up",tx="Upcoming";
+    if(done){st="ok";tx="Prayed ✓"}else if(fut){st="up";tx="Upcoming"}else if(!isT||now>=ends[k]){st="miss";tx="Missed"}else if(now>=t){st="due";tx="Due now"}
+    h+=`<div class="row ${done?"done":""} ${st==="due"?"due":""}" data-k="${k}"><div class="chk">${done?"✓":""}</div><div class="nm"><b>${n} <span class="ar">${a}</span></b><span class="tag ${st==="ok"?"":st}">${tx}</span></div><div class="tm">${fmt(t,S.tz)}</div></div>`;
+  });
+  $("#list").innerHTML=h;
+  $("#note").textContent=`Sunrise ${fmt(tm.sunrise,S.tz)} · times for ${S.loc[0].toUpperCase()+S.loc.slice(1)} shown in ${S.tz.split("/")[1].replace("_"," ")} time`;
+  const c=cnt(view);$("#cnt").textContent=c+"/5";$("#arc").style.strokeDashoffset=263.9*(1-c/5);
+  stats();tick();
+}
+function stats(){
+  const td=today();let s=0,k=td;if(cnt(k)<5)k=shift(k,-1);
+  while(cnt(k)===5){s++;k=shift(k,-1)}
+  $("#streak").textContent=s;
+  let w=0,days=[];for(let i=6;i>=0;i--){const d=shift(td,-i);days.push(d);w+=cnt(d)}
+  $("#wk").textContent=Math.round(w/35*100)+"%";
+  $("#tot").textContent=Object.keys(LOG).reduce((a,d)=>a+cnt(d),0);
+  let svg="";days.forEach((d,i)=>{const c=cnt(d),x=14+i*44,hh=c/5*90,wd=new Date(d+"T12:00:00Z").toLocaleDateString("en-US",{weekday:"short",timeZone:"UTC"});
+    svg+=`<rect x="${x}" y="10" width="30" height="90" rx="8" fill="var(--line)"/><rect x="${x}" y="${100-hh}" width="30" height="${hh}" rx="8" fill="${c===5?"var(--acc)":"var(--gold)"}"/><text x="${x+15}" y="${c?96-hh+14>20?100-hh-4:100-hh+14:96}" text-anchor="middle" font-size="11" fill="var(--ink)">${c}</text><text x="${x+15}" y="120" text-anchor="middle" font-size="11" fill="var(--mute)">${wd}</text>`});
+  $("#bars").innerHTML=svg;
+  let ht="";for(let i=29;i>=0;i--){const d=shift(td,-i),c=cnt(d);ht+=`<i title="${d}: ${c}/5" style="opacity:${c?.2+c*.16:.08}"></i>`}
+  $("#heat").innerHTML=ht;
+}
+function fire(n){
+  $("#alert").style.display="block";$("#alert").textContent=`🕌 ${n} time has begun. Tap to dismiss.`;
+  try{if(S.alerts&&"Notification"in window&&Notification.permission==="granted")new Notification("Prayer time",{body:`${n} time has begun`})}catch(e){}
+  try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=660;g.gain.setValueAtTime(.15,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+1.2);o.start();o.stop(a.currentTime+1.2)}catch(e){}
+}
+function tick(){
+  const td=today(),tm=calc(td),now=Date.now();
+  let nxt=P.find(p=>tm[p[0]]>now),t;
+  if(nxt)t=tm[nxt[0]];else{nxt=P[0];t=calc(shift(td,1)).fajr}
+  const s=Math.max(0,Math.floor((t-now)/1e3)),f=n=>String(n).padStart(2,"0");
+  $("#ncd").textContent=`${f(Math.floor(s/3600))}:${f(Math.floor(s%3600/60))}:${f(s%60)}`;
+  $("#nname").textContent=`until ${nxt[1]} at ${fmt(t,S.tz)}`;
+  P.forEach(([k,n])=>{const id=td+k;if(!fired[id]&&now>=tm[k]&&now<tm[k]+9e4&&!(LOG[td]||{})[k]){fired[id]=1;fire(n)}});
+}
+$("#list").onclick=e=>{const row=e.target.closest(".row");if(!row||view>today())return;const k=row.dataset.k;LOG[view]=LOG[view]||{};LOG[view][k]=!LOG[view][k];save();render()};
+$("#prev").onclick=()=>{view=shift(view,-1);render()};
+$("#next").onclick=()=>{if(view<today()){view=shift(view,1);render()}};
+$("#alert").onclick=()=>$("#alert").style.display="none";
+$("#bell").onclick=async()=>{
+  try{if("Notification"in window){const p=await Notification.requestPermission();S.alerts=p==="granted"}}catch(e){}
+  S.alerts=true;save();bell();fire("Test: reminders are on. Your next prayer");
+};
+function bell(){$("#bell").textContent=S.alerts?"🔔 Alerts on":"🔔 Enable alerts"}
+TZS.forEach(z=>$("#tz").add(new Option(z.split("/")[1].replace("_"," ")+" ("+z+")",z)));
+["loc","tz","asr","theme"].forEach(id=>{$("#"+id).value=S[id];$("#"+id).onchange=e=>{S[id]=e.target.value;save();if(id==="theme")theme();else{view=today()}render()}});
+function theme(){S.theme==="auto"?document.documentElement.removeAttribute("data-theme"):document.documentElement.setAttribute("data-theme",S.theme)}
+try{$("#hijri").textContent=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{day:"numeric",month:"long",year:"numeric"}).format(new Date())}catch(e){}
+$("#exp").onclick=()=>{const b=new Blob([JSON.stringify({log:LOG,settings:S},null,1)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="salah-backup-"+today()+".json";a.click()};
+$("#imp").onclick=()=>$("#impf").click();
+$("#impf").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);Object.keys(o.log||{}).forEach(d=>{LOG[d]=Object.assign({},LOG[d],o.log[d])});save();render();alert("Backup restored")}catch(x){alert("Invalid backup file")}})};
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+try{localStorage.setItem("t","1");localStorage.removeItem("t")}catch(e){$("#alert").style.display="block";$("#alert").textContent="Your browser is blocking saved data (private mode or file restrictions). Use Export backup, or open the app from localhost."}
+$("#ics").onclick=()=>{const z=t=>new Date(t).toISOString().replace(/[-:]|\.\d{3}/g,""),L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Salah Tracker//EN","CALSCALE:GREGORIAN"];
+for(let i=0;i<30;i++){const k=shift(today(),i),tm=calc(k);P.forEach(([id,n])=>{L.push("BEGIN:VEVENT","UID:"+k+id+"@salah-tracker","DTSTAMP:"+z(Date.now()),"DTSTART:"+z(tm[id]),"DTEND:"+z(tm[id]+18e5),"SUMMARY:"+n+" prayer time","BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+n+" time has begun","TRIGGER:PT0M","END:VALARM","END:VEVENT")})}
+L.push("END:VCALENDAR");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([L.join("\r\n")],{type:"text/calendar"}));a.download="salah-times.ics";a.click()};
+try{if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")}catch(e){}
+theme();bell();render();setInterval(()=>{tick();if(Math.floor(Date.now()/1e3)%30===0)render()},1000);
+</script>
+</body>
+</html>
